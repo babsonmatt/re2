@@ -106,3 +106,20 @@ match_test() ->
     {ok, RegExD} = re2:compile(<<"h.*o">>),
 
     ?assertEqual(nomatch, re2:match("Hello", RegExD)).
+
+-ifdef(PROPER).
+proper_test_() ->
+    {timeout, 60,
+     fun() ->
+             Log = fun(Fmt, Args) -> io:format(user, Fmt, Args) end,
+             Opts = [long_result, {on_output, Log}],
+             case proper:module(re2_qc, Opts) of
+                 [] ->
+                     true;
+                 Err ->
+                     Log("One or more properties didn't hold true:~n~p~n",
+                         [Err]),
+                     ?assertEqual([], Err)
+             end
+     end}.
+-endif.
